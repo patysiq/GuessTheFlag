@@ -13,6 +13,8 @@ struct ContentView: View {
     
     @State private var correctAnswer = Int.random(in: 0...2)
     @State private var showingScore = false
+    @State private var animationCorrect = false
+    @State private var animationAmount = Double.zero
     @State private var scoreTitle = ""
     @State private var score = 0
     @State private var number = 0
@@ -37,11 +39,15 @@ struct ContentView: View {
                     Button(action: {
                         self.flagTapped(number)
                         self.number = number
-                    }) {
+                    })
+                    {
                         Image(self.countries[number])
                             .renderingMode(.original)
                             .clipShape(RoundedRectangle(cornerRadius: 20))
                             .shadow(color: .black, radius: 20)
+                            .rotation3DEffect(.degrees(animationCorrect && number == correctAnswer ? self.animationAmount : 0), axis: (x: 0, y: 1, z: 0))
+                            .opacity(animationCorrect && number != correctAnswer ? 0.25 : 1)
+                            .animation(.default)
                     }
                 }
                 VStack {
@@ -64,14 +70,17 @@ struct ContentView: View {
         if number == correctAnswer {
             scoreTitle = "Correct"
             score += 1
+            animationCorrect = true
+            animationAmount += 360
         } else {
             scoreTitle = "Wrong. That’s the flag of \(countries[self.number])."
         }
-
+        
         showingScore = true
     }
     
     func askQuestion() {
+        animationCorrect = false
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
     }
